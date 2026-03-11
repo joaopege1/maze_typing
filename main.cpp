@@ -5,6 +5,8 @@
 #include <optional>
 #include <iostream>
 
+#include "player.hpp"
+
 using namespace std;
 
 // Os estados do nosso jogo
@@ -12,25 +14,25 @@ enum GameState { MENU, PLAYING, GAME_OVER };
 
 vector<string> maze = {
     " ################### ",
-    " S                 # ",
-    " #                 # ",
-    " #                 # ",
-    " #                 # ",
-    " #                 # ",
-    " #                 # ",
-    " #                 # ",
-    " #                 # ",
-    " #                 # ",
-    " #                 E ",
+    " S   WWWWWWWWW     # ",
+    " #       W         # ",
+    " #       W         # ",
+    " #   W   W         # ",
+    " #   WWWWWWWWW     # ",
+    " #       W   W     # ",
+    " #       W   W     # ",
+    " #       WWWWW     # ",
+    " #       W         # ",
+    " #       W         E ",
     " ################### ",
 };
 
-// screen:
+// Configurações da Tela
 const unsigned int SCREEN_WIDTH = 850;
 const unsigned int SCREEN_HEIGHT = 600;
-
-const int SCREEN_CENTER_X = SCREEN_WIDTH  / 2;   // 425
-const int SCREEN_CENTER_Y = SCREEN_HEIGHT / 2;   // 300
+const int SCREEN_CENTER_X = SCREEN_WIDTH  / 2;
+const int SCREEN_CENTER_Y = SCREEN_HEIGHT / 2;
+const int TILE_SIZE = 40; // Tamanho de cada bloco do labirinto
 
 int main() {
     sf::RenderWindow window(sf::VideoMode({SCREEN_WIDTH, SCREEN_HEIGHT}), "Speed Typing Maze 2D");
@@ -39,7 +41,7 @@ int main() {
     // 1. Carregando a Fonte
     sf::Font font;
     if (!font.openFromFile("game_font.ttf")) {
-        cout << "ERRO: Arquivo de fonte '.ttf' não encontrado na pasta!" << endl;
+        cout << "ERRO: Arquivo de fonte 'game_font.ttf' não encontrado na pasta!" << endl;
         return -1; 
     }
 
@@ -65,25 +67,46 @@ int main() {
     gameOver.setString("GAME OVER");
     gameOver.setCharacterSize(60);
     gameOver.setFillColor(sf::Color::Red);
-    gameOver.setPosition({SCREEN_CENTER_X/1.6f, SCREEN_CENTER_Y/1.0f}); // Corrigi o float aqui para evitar avisos
+    gameOver.setPosition({SCREEN_CENTER_X/1.6f, SCREEN_CENTER_Y/2.0f});
+
+    sf::Text gameOverText(font);
+    gameOverText.setString("Press ENTER to restart or ESC to exit");
+    gameOverText.setCharacterSize(30);
+    gameOverText.setFillColor(sf::Color::White);
+    gameOverText.setPosition({SCREEN_CENTER_X/3, SCREEN_CENTER_Y});
 
     GameState currentState = MENU;
     sf::Clock gameClock; 
     const float TIME_LIMIT = 10.0f;
-    int tileSize = 40;
+
+    // --- CÁLCULO DA POSIÇÃO INICIAL DO JOGADOR ---
+    float playerStartX = 0.0f;
+    float playerStartY = 0.0f;
+
+    for (int y = 0; y < maze.size(); y++) {
+        for (int x = 0; x < maze[y].size(); x++) {
+            if (maze[y][x] == 'S') {
+                // Acha a posição do S em pixels.
+                // Somamos +5 para centralizar o jogador (30x30) no bloco (40x40)
+                playerStartX = (float)(x * TILE_SIZE) + 5.0f; 
+                playerStartY = (float)(y * TILE_SIZE + 100) + 5.0f;
+            }
+        }
+    }
+
+    // Instancia o jogador passando as coordenadas que encontramos
+    Player meuJogador(playerStartX, playerStartY);
 
     // Loop Principal
     while (window.isOpen()) {
         
-        // --- 1. PROCESSAR EVENTOS (O Único Caixa do Supermercado) ---
+        // --- 1. PROCESSAR EVENTOS ---
         while (const std::optional event = window.pollEvent()) {
             if (event->is<sf::Event::Closed>()) {
                 window.close();
             }
 
-            // Capturar teclas baseadas no estado atual
             if (const auto* keyEvent = event->getIf<sf::Event::KeyPressed>()) {
-                
                 if (currentState == MENU) {
                     if (keyEvent->code == sf::Keyboard::Key::Enter) {
                         currentState = PLAYING;
@@ -94,11 +117,11 @@ int main() {
                     if (keyEvent->code == sf::Keyboard::Key::Enter) {
                         currentState = PLAYING;
                         gameClock.restart(); 
+                        // Opcional futuro: resetar a posição do jogador aqui!
                     } else if (keyEvent->code == sf::Keyboard::Key::Escape) {
                         window.close();
                     }
                 }
-                // (No futuro, o texto digitado no PLAYING entra aqui)
             }
         }
 
@@ -122,11 +145,11 @@ int main() {
             window.draw(startText);
         } 
         else if (currentState == PLAYING) {
-            // Desenha o Labirinto (Apenas quando estiver jogando)
+            // Desenha o Labirinto
             for (int y = 0; y < maze.size(); y++) {
                 for (int x = 0; x < maze[y].size(); x++) {
-                    sf::RectangleShape tile(sf::Vector2f({(float)tileSize, (float)tileSize}));
-                    tile.setPosition({(float)(x * tileSize), (float)(y * tileSize + 100)});
+                    sf::RectangleShape tile(sf::Vector2f({(float)TILE_SIZE, (float)TILE_SIZE}));
+                    tile.setPosition({(float)(x * TILE_SIZE), (float)(y * TILE_SIZE + 100)});
 
                     if (maze[y][x] == '#') {
                         tile.setFillColor(sf::Color::White);
@@ -140,12 +163,16 @@ int main() {
                     window.draw(tile);
                 }
             }
+            
+            // ---> DESENHA O JOGADOR AQUI (por cima do labirinto) <---
+            meuJogador.draw(window);
+
+            // Desenha o Timer
             window.draw(timerText);
         }
         else if (currentState == GAME_OVER) {
-            // Quando for Game Over, a tela já está preta por causa do clear() lá em cima
-            // Só precisamos desenhar o texto!
             window.draw(gameOver);
+            window.draw(gameOverText);
         }
 
         window.display();
