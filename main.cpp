@@ -9,7 +9,7 @@
 
 using namespace std;
 
-// Os estados do nosso jogo
+
 enum GameState { MENU, PLAYING, GAME_OVER };
 
 vector<string> maze = {
@@ -94,7 +94,6 @@ int main() {
         }
     }
 
-    // Instancia o jogador passando as coordenadas que encontramos
     Player meuJogador(playerStartX, playerStartY);
 
     // Loop Principal
