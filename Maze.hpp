@@ -6,7 +6,9 @@
 
 class Maze {
 public:
-    Maze();
+    Maze() = default;
+
+    void loadFromFile(const std::string& path);
 
     char getTile(int x, int y) const;
     bool isWall(int x, int y) const;

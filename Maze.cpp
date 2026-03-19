@@ -1,17 +1,17 @@
 #include "Maze.hpp"
+#include <fstream>
 
-Maze::Maze() : grid({
-    " ################### ",
-    " S W               # ",
-    " # W               # ",
-    " # W               # ",
-    " # W               # ",
-    " # W               # ",
-    " # W               # ",
-    " # WWWWWWWWWWWWWWWW# ",
-    " #                 E ",
-    " ################### ",
-}) {}
+void Maze::loadFromFile(const std::string& path) {
+    grid.clear();
+    std::ifstream file(path);
+    std::string line;
+    while (std::getline(file, line)) {
+        auto first = line.find('"');
+        auto last  = line.rfind('"');
+        if (first != std::string::npos && last != std::string::npos && last > first)
+            grid.push_back(line.substr(first + 1, last - first - 1));
+    }
+}
 
 char Maze::getTile(int x, int y) const {
     if (y < 0 || y >= (int)grid.size())    return '#';
@@ -29,15 +29,13 @@ bool Maze::isWall(int x, int y) const {
 bool Maze::isExit(int x, int y) const {
     if (y < 0 || y >= (int)grid.size())    return false;
     if (x < 0 || x >= (int)grid[y].size()) return false;
-    char tile = grid[y][x];
-    return tile == 'E';
+    return grid[y][x] == 'E';
 }
 
 bool Maze::isStart(int x, int y) const {
     if (y < 0 || y >= (int)grid.size())    return false;
     if (x < 0 || x >= (int)grid[y].size()) return false;
-    char tile = grid[y][x];
-    return tile == 'S';
+    return grid[y][x] == 'S';
 }
 
 sf::Vector2f Maze::getStartPosition() const {
@@ -56,14 +54,14 @@ void Maze::draw(sf::RenderWindow& window) const {
             sf::RectangleShape rect({ (float)TILE_SIZE, (float)TILE_SIZE });
             rect.setPosition({ (float)(x * TILE_SIZE), (float)(y * TILE_SIZE + 100) });
 
-            if (tile == '#') { // maze grid
+            if (tile == '#') {
                 rect.setFillColor(sf::Color::White);
-            } else if (tile == 'W') { // maze wall
+            } else if (tile == 'W') {
                 rect.setFillColor(sf::Color::White);
-            } else if (tile == 'S') { // start
-                rect.setFillColor(sf::Color::Red);
-            } else if (tile == 'E') { // exit, end
-                rect.setFillColor(sf::Color::Red);
+            } else if (tile == 'S') {
+                rect.setFillColor(sf::Color::Blue);
+            } else if (tile == 'E') {
+                rect.setFillColor(sf::Color::Green);
             } else {
                 continue;
             }

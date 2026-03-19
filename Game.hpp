@@ -18,6 +18,11 @@ private:
     sf::Font         font;
     sf::Clock        gameClock;
     GameState        state;
+    GameMode         mode;
+
+    int  currentLevel;
+    int  menuSelection;
+    bool timerStarted;
 
     Maze   maze;
     Player player;
@@ -34,12 +39,21 @@ private:
     std::optional<sf::Text> inputText;
     std::optional<sf::Text> outputText;
     std::optional<sf::Text> gameWonTitle;
+    std::optional<sf::Text> levelCompleteTitle;
+    std::optional<sf::Text> levelCompleteSubtitle;
+    std::optional<sf::Text> levelText;
+    std::optional<sf::Text> selectModeText;
+    std::optional<sf::Text> modeEasyText;
+    std::optional<sf::Text> modeHardText;
+    std::optional<sf::Text> modeIndicatorText;
 
     // Initialises all sf::Text members after font is loaded
     void setupUI();
 
     // Resets clock, input and player position to start a new run
     void resetGame();
+    void loadLevel(int level);
+    void advanceLevel();
 
     void processEvents();
     void update();
@@ -48,6 +62,7 @@ private:
     void onMenuKey(const sf::Event::KeyPressed& key);
     void onGameOverKey(const sf::Event::KeyPressed& key);
     void onGameWonKey(const sf::Event::KeyPressed& key);
+    void onLevelCompleteKey(const sf::Event::KeyPressed& key);
     void onPlayingKey(const sf::Event::KeyPressed& key);
     void onTextInput(const sf::Event::TextEntered& text);
     void processDirection();
