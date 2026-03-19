@@ -5,7 +5,7 @@ Player::Player(float startX, float startY)
     position = {startX, startY};
 
     shape.setSize({30.f, 30.f});
-    shape.setFillColor(sf::Color::Yellow);
+    shape.setFillColor(sf::Color::Green);
     shape.setPosition(position);
 }
 

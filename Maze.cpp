@@ -19,6 +19,13 @@ char Maze::getTile(int x, int y) const {
     return grid[y][x];
 }
 
+bool Maze::isWall(int x, int y) const {
+    if (y < 0 || y >= (int)grid.size())    return true;
+    if (x < 0 || x >= (int)grid[y].size()) return true;
+    char tile = grid[y][x];
+    return tile == '#' || tile == 'W';
+}
+
 sf::Vector2f Maze::getStartPosition() const {
     for (size_t y = 0; y < grid.size(); y++)
         for (size_t x = 0; x < grid[y].size(); x++)
@@ -31,11 +38,22 @@ void Maze::draw(sf::RenderWindow& window) const {
     for (size_t y = 0; y < grid.size(); y++) {
         for (size_t x = 0; x < grid[y].size(); x++) {
             char tile = grid[y][x];
-            if (tile != '#' && tile != 'S' && tile != 'E') continue;
 
             sf::RectangleShape rect({ (float)TILE_SIZE, (float)TILE_SIZE });
             rect.setPosition({ (float)(x * TILE_SIZE), (float)(y * TILE_SIZE + 100) });
-            rect.setFillColor(tile == '#' ? sf::Color::White : sf::Color::Red);
+
+            if (tile == '#') { // maze grid
+                rect.setFillColor(sf::Color::White);
+            } else if (tile == 'W') { // maze wall
+                rect.setFillColor(sf::Color(100, 100, 255));
+            } else if (tile == 'S') { // start
+                rect.setFillColor(sf::Color::Red);
+            } else if (tile == 'E') { // exit, end
+                rect.setFillColor(sf::Color::Red);
+            } else {
+                continue;
+            }
+
             window.draw(rect);
         }
     }
