@@ -143,7 +143,7 @@ void Game::processDirection() {
 
         output = "Moved " + input + "!";
     } else {
-        output = "Unknown direction: \"" + input + "\". Try: right, left, up, down";
+        output = "There's no" + input + "\". Try: right, left, up, down";
     }
 
     input.clear();
@@ -157,9 +157,8 @@ void Game::onPlayingKey(const sf::Event::KeyPressed& key) {
 }
 
 void Game::onTextInput(const sf::Event::TextEntered& text) {
-    // Aceita apenas caracteres imprimíveis (letras, números, símbolos)
     if (text.unicode >= 32 && text.unicode < 127)
-        input += static_cast<char>(text.unicode);
+        input += static_cast<char>(std::tolower(static_cast<unsigned char>(text.unicode)));
 }
 
 void Game::update() {
