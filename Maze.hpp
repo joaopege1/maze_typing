@@ -8,11 +8,10 @@ class Maze {
 public:
     Maze();
 
-    // Returns the tile character at grid position (x, y)
     char getTile(int x, int y) const;
     bool isWall(int x, int y) const;
+    bool isExit(int x, int y) const;
 
-    // Returns world position of the 'S' tile
     sf::Vector2f getStartPosition() const;
 
     void draw(sf::RenderWindow& window) const;

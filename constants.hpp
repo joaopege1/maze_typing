@@ -1,6 +1,6 @@
 #pragma once
 
-enum GameState { MENU, PLAYING, GAME_OVER };
+enum GameState { MENU, PLAYING, GAME_OVER, GAME_WON };
 
 const unsigned int SCREEN_WIDTH  = 850;
 const unsigned int SCREEN_HEIGHT = 600;

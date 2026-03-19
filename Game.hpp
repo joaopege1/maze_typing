@@ -4,7 +4,7 @@
 #include <string>
 #include "constants.hpp"
 #include "Maze.hpp"
-#include "player.hpp"
+#include "Player.hpp"
 
 class Game {
 public:
@@ -33,6 +33,7 @@ private:
     std::optional<sf::Text> gameOverSubtitle;
     std::optional<sf::Text> inputText;
     std::optional<sf::Text> outputText;
+    std::optional<sf::Text> gameWonTitle;
 
     // Initialises all sf::Text members after font is loaded
     void setupUI();
@@ -46,5 +47,8 @@ private:
 
     void onMenuKey(const sf::Event::KeyPressed& key);
     void onGameOverKey(const sf::Event::KeyPressed& key);
+    void onGameWonKey(const sf::Event::KeyPressed& key);
+    void onPlayingKey(const sf::Event::KeyPressed& key);
     void onTextInput(const sf::Event::TextEntered& text);
+    void processDirection();
 };

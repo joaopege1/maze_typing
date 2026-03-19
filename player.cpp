@@ -1,4 +1,5 @@
-#include "player.hpp"
+#include "Player.hpp"
+#include "constants.hpp"
 
 Player::Player(float startX, float startY)
 {
@@ -9,12 +10,18 @@ Player::Player(float startX, float startY)
     shape.setPosition(position);
 }
 
-void Player::move(sf::Vector2f offset)
+void Player::move(sf::Vector2f offset, const Maze& maze)
 {
-    position.x += offset.x;
-    position.y += offset.y;
+    sf::Vector2f futurePosition = position + offset;
 
-    shape.setPosition(position);
+    // Converte pixels -> grid para verificar colisão
+    int gridX = (int)(futurePosition.x / TILE_SIZE);
+    int gridY = (int)((futurePosition.y - 100) / TILE_SIZE);
+
+    if (!maze.isWall(gridX, gridY)) {
+        position = futurePosition;
+        shape.setPosition(position);
+    }
 }
 
 void Player::draw(sf::RenderWindow& window)

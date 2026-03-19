@@ -49,6 +49,13 @@ void Game::setupUI() {
     gameOverSubtitle->setFillColor(sf::Color::White);
     gameOverSubtitle->setPosition({ SCREEN_CENTER_X / 3.f, (float)SCREEN_CENTER_Y });
 
+    gameWonTitle.emplace(font);
+    gameWonTitle->setString("GAME WON");
+    gameWonTitle->setCharacterSize(60);
+    gameWonTitle->setFillColor(sf::Color::Green);
+    gameWonTitle->setPosition({ SCREEN_CENTER_X / 1.6f, SCREEN_CENTER_Y / 2.f });
+
+
     outputText.emplace(font);
     outputText->setCharacterSize(24);
     outputText->setPosition({ 20.f, 500.f });
@@ -83,6 +90,8 @@ void Game::processEvents() {
         if (const auto* key = event->getIf<sf::Event::KeyPressed>()) {
             if (state == MENU)      onMenuKey(*key);
             if (state == GAME_OVER) onGameOverKey(*key);
+            if (state == GAME_WON)  onGameWonKey(*key);
+            if (state == PLAYING)   onPlayingKey(*key);
         }
 
         if (const auto* text = event->getIf<sf::Event::TextEntered>()) {
@@ -103,15 +112,54 @@ void Game::onGameOverKey(const sf::Event::KeyPressed& key) {
         window.close();
 }
 
-void Game::onTextInput(const sf::Event::TextEntered& text) {
-    if (text.unicode == 8) {
-        if (!input.empty()) input.pop_back();
-    } else if (text.unicode == 13) {
-        output = "You typed: " + input;
-        input.clear();
-    } else if (text.unicode < 128) {
-        input += static_cast<char>(text.unicode);
+void Game::onGameWonKey(const sf::Event::KeyPressed& key) {
+    if (key.code == sf::Keyboard::Key::Enter)
+        resetGame();
+    else if (key.code == sf::Keyboard::Key::Escape)
+        window.close();
+}
+
+void Game::processDirection() {
+    sf::Vector2f offset = {0.f, 0.f};
+
+    if      (input == "right") offset = {  (float)TILE_SIZE, 0.f };
+    else if (input == "left")  offset = { -(float)TILE_SIZE, 0.f };
+    else if (input == "up")    offset = { 0.f, -(float)TILE_SIZE };
+    else if (input == "down")  offset = { 0.f,  (float)TILE_SIZE };
+
+    if (offset.x != 0.f || offset.y != 0.f) {
+        sf::Vector2f prevPos;
+        do {
+            prevPos = player.getPosition();
+            player.move(offset, maze);
+        } while (player.getPosition() != prevPos);
+
+        // Verifica o tile à frente — se for E, o player parou na saída
+        sf::Vector2f nextPos = player.getPosition() + offset;
+        int gridX = (int)(nextPos.x / TILE_SIZE);
+        int gridY = (int)((nextPos.y - 100) / TILE_SIZE);
+        if (maze.isExit(gridX, gridY))
+            state = GAME_WON;
+
+        output = "Moved " + input + "!";
+    } else {
+        output = "Unknown direction: \"" + input + "\". Try: right, left, up, down";
     }
+
+    input.clear();
+}
+
+void Game::onPlayingKey(const sf::Event::KeyPressed& key) {
+    if (key.code == sf::Keyboard::Key::Enter && !input.empty())
+        processDirection();
+    else if (key.code == sf::Keyboard::Key::Backspace && !input.empty())
+        input.pop_back();
+}
+
+void Game::onTextInput(const sf::Event::TextEntered& text) {
+    // Aceita apenas caracteres imprimíveis (letras, números, símbolos)
+    if (text.unicode >= 32 && text.unicode < 127)
+        input += static_cast<char>(text.unicode);
 }
 
 void Game::update() {
@@ -143,6 +191,9 @@ void Game::render() {
         window.draw(*inputText);
     } else if (state == GAME_OVER) {
         window.draw(*gameOverTitle);
+        window.draw(*gameOverSubtitle);
+    } else if (state == GAME_WON) {
+        window.draw(*gameWonTitle);
         window.draw(*gameOverSubtitle);
     }
 
