@@ -1,25 +1,50 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include "player.hpp"
-#include "Maze.hpp"
+#include <optional>
+#include <string>
 #include "constants.hpp"
+#include "Maze.hpp"
+#include "player.hpp"
 
 class Game {
+public:
+    Game();
+
+    // Main loop: processEvents -> update -> render
+    void run();
+
 private:
     sf::RenderWindow window;
-    GameState currentState;
-    sf::Font font;
-    sf::Clock gameClock;
-    
-    // O Jogo é "dono" do jogador e do labirinto
-    Player player; 
-    Maze maze;
+    sf::Font         font;
+    sf::Clock        gameClock;
+    GameState        state;
+
+    Maze   maze;
+    Player player;
+
+    std::string input;
+    std::string output;
+
+    // UI text nodes (optional because they require a loaded font to construct)
+    std::optional<sf::Text> titleText;
+    std::optional<sf::Text> startText;
+    std::optional<sf::Text> timerText;
+    std::optional<sf::Text> gameOverTitle;
+    std::optional<sf::Text> gameOverSubtitle;
+    std::optional<sf::Text> inputText;
+    std::optional<sf::Text> outputText;
+
+    // Initialises all sf::Text members after font is loaded
+    void setupUI();
+
+    // Resets clock, input and player position to start a new run
+    void resetGame();
 
     void processEvents();
     void update();
     void render();
 
-public:
-    Game();
-    void run(); // O Game Loop (while window.isOpen) entra aqui
+    void onMenuKey(const sf::Event::KeyPressed& key);
+    void onGameOverKey(const sf::Event::KeyPressed& key);
+    void onTextInput(const sf::Event::TextEntered& text);
 };
