@@ -11,6 +11,7 @@ public:
     char getTile(int x, int y) const;
     bool isWall(int x, int y) const;
     bool isExit(int x, int y) const;
+    bool isStart(int x, int y) const;
 
     sf::Vector2f getStartPosition() const;
 

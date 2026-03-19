@@ -21,9 +21,9 @@ char Maze::getTile(int x, int y) const {
 
 bool Maze::isWall(int x, int y) const {
     if (y < 0 || y >= (int)grid.size())    return true;
-    if (x < 0 || x >= (int)grid[y].size()) return true;
+    if (x <= 0 || x >= (int)grid[y].size() - 1) return true;
     char tile = grid[y][x];
-    return tile == '#' || tile == 'W' || tile == 'E';
+    return tile == '#' || tile == 'W' || tile == 'E' || tile == 'S';
 }
 
 bool Maze::isExit(int x, int y) const {
@@ -31,6 +31,13 @@ bool Maze::isExit(int x, int y) const {
     if (x < 0 || x >= (int)grid[y].size()) return false;
     char tile = grid[y][x];
     return tile == 'E';
+}
+
+bool Maze::isStart(int x, int y) const {
+    if (y < 0 || y >= (int)grid.size())    return false;
+    if (x < 0 || x >= (int)grid[y].size()) return false;
+    char tile = grid[y][x];
+    return tile == 'S';
 }
 
 sf::Vector2f Maze::getStartPosition() const {
