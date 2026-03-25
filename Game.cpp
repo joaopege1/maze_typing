@@ -225,7 +225,7 @@ void Game::processDirection() {
 
         output = "Moved " + input + "!";
     } else {
-        output = "There's no" + input + "\". Try: right, left, up, down";
+        output = "There's no [" + input + "]. Try: right, left, up, down";
     }
 
     input.clear();
